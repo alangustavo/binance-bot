@@ -1,29 +1,26 @@
-name: Deploy Application
+name: Node.js CI
 
 on:
   push:
     branches:
-      - main  # Ou outro branch que você deseja monitorar
+      - main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out code
-      uses: actions/checkout@v3  # Clona o repositório para o runner
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Deploy to server via SSH
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        SERVER_USER: ubuntu
-        SERVER_HOST: 204.216.142.152
-      run: |
-        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << EOF
-          cd /caminho/do/projeto
-          git pull origin main
-          npm install --production  # Substitua pelos comandos necessários para sua aplicação
-          pm2 restart app          # Substitua pelos comandos para iniciar sua aplicação
-        EOF
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20 # Atualize para a versão 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
