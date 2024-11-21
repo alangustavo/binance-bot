@@ -18,7 +18,7 @@ class RealTimeCandlesService {
 
     private initializeWebSocket() {
         this.client.ws.candles(this.symbol, this.interval, (candle) => {
-            console.log(`Received candle update for ${this.symbol}:`, candle);
+            // console.log(`Received candle update for ${this.symbol} ${this.interval}:`, candle);
             this.historicalCandlesService.updateCandle(candle);
         });
     }

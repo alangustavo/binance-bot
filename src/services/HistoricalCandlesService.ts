@@ -6,6 +6,7 @@ import RealTimeCandlesService from './RealTimeCandlesService';
 class HistoricalCandlesService {
     private client = BinanceClient.getInstance().getClient();
     private symbol: string = '';
+    private interval: CandleChartInterval_LT = '1m';
     private historicalCandles: any[] = [];
     private limit: number = 24; // Padrão inicial de 24, mas pode ser atualizado dinamicamente
     private realTimeCandlesService: RealTimeCandlesService | null = null;
@@ -13,6 +14,7 @@ class HistoricalCandlesService {
     public async getHistoricalCandles(symbol: string, interval: CandleChartInterval_LT, limit: number) {
         this.limit = limit; // Atualiza o limite baseado no número de candles solicitados
         this.symbol = symbol;
+        this.interval = interval;
         try {
             const candles = await this.client.candles({ symbol, interval, limit });
             this.historicalCandles = candles;
@@ -32,8 +34,6 @@ class HistoricalCandlesService {
 
     public updateCandle(candle: any) {
         const transformedCandle = this.transformCandle(candle);
-        console.log(`Historical Candle for ${this.symbol}:`, transformedCandle);
-        console.log(this.historicalCandles);
         const lastCandle = this.historicalCandles[this.historicalCandles.length - 1];
         if (lastCandle && lastCandle.openTime === transformedCandle.openTime) {
             // Atualizar o último candle se ainda estiver aberto
@@ -46,10 +46,16 @@ class HistoricalCandlesService {
             if (this.historicalCandles.length > this.limit) {
                 this.historicalCandles.shift();
             }
+            // console.log(`Historical Candle for ${this.symbol} ${this.interval}:`, transformedCandle);
+
+
         }
+
     }
 
-
+    public log() {
+        console.log(`Historical Candle for ${this.symbol} ${this.interval}:`, this.historicalCandles);
+    }
     private transformCandle(candle: any) {
         return {
             openTime: candle.startTime || null,
